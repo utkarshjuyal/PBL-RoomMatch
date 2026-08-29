@@ -5,15 +5,26 @@ const {
     login
 } = require("../controllers/authController");
 
+const protect = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
 
-// POST /api/auth/register
+// Public routes
+
 router.post("/register", register);
 
-
-// POST /api/auth/login
 router.post("/login", login);
+
+
+// Protected route
+
+router.get("/me", protect, (req, res) => {
+    res.status(200).json({
+        message: "You are authenticated",
+        user: req.user
+    });
+});
 
 
 module.exports = router;
