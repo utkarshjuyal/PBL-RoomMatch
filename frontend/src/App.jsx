@@ -1,28 +1,47 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from "react-router-dom";
 
-function App() {
-    const [message, setMessage] = useState("");
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
-    useEffect(() => {
-        const testBackend = async () => {
-            try {
-                const response = await api.get("/");
-                setMessage(response.data.message);
-            } catch (error) {
-                console.error("Backend connection failed:", error);
-                setMessage("Backend connection failed");
-            }
-        };
 
-        testBackend();
-    }, []);
-
+const Home = () => {
     return (
         <div>
-            <h1>RoomMatch</h1>
-            <p>{message}</p>
+            <h1>Welcome to RoomMatch</h1>
         </div>
+    );
+};
+
+
+function App() {
+
+    return (
+        <BrowserRouter>
+
+            <Routes>
+
+                <Route
+                    path="/"
+                    element={<Home />}
+                />
+
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
+
+            </Routes>
+
+        </BrowserRouter>
     );
 }
 
