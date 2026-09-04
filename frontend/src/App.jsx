@@ -6,7 +6,8 @@ import {
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import Profile from "./pages/Profile";
+import Preferences from "./pages/Preferences";
 
 const Home = () => {
     return (
@@ -16,12 +17,9 @@ const Home = () => {
     );
 };
 
-
 function App() {
-
     return (
         <BrowserRouter>
-
             <Routes>
 
                 <Route
@@ -39,8 +37,17 @@ function App() {
                     element={<Register />}
                 />
 
-            </Routes>
+                <Route
+                    path="/profile"
+                    element={<Profile />}
+                />
 
+                <Route
+                    path="/preferences"
+                    element={<Preferences />}
+                />
+
+            </Routes>
         </BrowserRouter>
     );
 }
