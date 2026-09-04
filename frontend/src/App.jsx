@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Preferences from "./pages/Preferences";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const Home = () => {
     return (
@@ -39,12 +40,20 @@ function App() {
 
                 <Route
                     path="/profile"
-                    element={<Profile />}
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/preferences"
-                    element={<Preferences />}
+                    element={
+                        <ProtectedRoute>
+                            <Preferences />
+                        </ProtectedRoute>
+                    }
                 />
 
             </Routes>
