@@ -1,45 +1,17 @@
-const API_URL = "http://localhost:5000/api/tenant-profile";
-
-const getToken = () => {
-  return localStorage.getItem("accesstoken");
-};
+import api from "./api";
 
 export const getProfile = async () => {
-  const token = getToken();
-
-  const response = await fetch(API_URL, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch profile");
-  }
-
-  return data;
+  const response = await api.get("/api/tenant-profile");
+  return response.data;
 };
 
 export const saveProfile = async (profileData) => {
-  const token = getToken();
-
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(profileData),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to save profile");
+  const payload = { ...profileData };
+  for (const key of ["age", "budgetMin", "budgetMax"]) {
+    if (payload[key] === "" || payload[key] === null || payload[key] === undefined) delete payload[key];
+    else payload[key] = Number(payload[key]);
   }
-
-  return data;
+  if (payload.moveInDate === "") delete payload.moveInDate;
+  const response = await api.put("/api/tenant-profile", payload);
+  return response.data;
 };

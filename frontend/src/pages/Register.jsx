@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
 
 const Register = () => {
-
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -17,103 +16,97 @@ const Register = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-
     const handleChange = (event) => {
-
         setFormData({
             ...formData,
             [event.target.name]: event.target.value
         });
     };
 
-
     const handleSubmit = async (event) => {
-
         event.preventDefault();
-
         setError("");
         setLoading(true);
 
         try {
-
-            await api.post(
-                "/api/auth/register",
-                formData
-            );
-
+            await api.post("/api/auth/register", formData);
             navigate("/login");
-
-        } catch (error) {
-
-            setError(
-                error.response?.data?.message ||
-                "Registration failed"
-            );
-
+        } catch (err) {
+            setError(err.response?.data?.message || "Registration failed");
         } finally {
-
             setLoading(false);
         }
     };
 
-
     return (
-        <div>
+        <div className="auth-page">
+            <div className="auth-card">
+                <div className="auth-header">
+                    <span className="brand-icon large">🏠</span>
+                    <h1>Create account</h1>
+                    <p>Join RoomMatch and find your ideal accommodation</p>
+                </div>
 
-            <h1>RoomMatch</h1>
+                {error && <p className="alert alert-error">{error}</p>}
 
-            <h2>Create Account</h2>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="name">Full Name</label>
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            placeholder="Your name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-            {error && <p>{error}</p>}
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-            <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            placeholder="Min. 6 characters"
+                            value={formData.password}
+                            onChange={handleChange}
+                            minLength={6}
+                            required
+                        />
+                    </div>
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                />
+                    <div className="form-group">
+                        <label htmlFor="role">I am a</label>
+                        <select id="role" name="role" value={formData.role} onChange={handleChange}>
+                            <option value="tenant">Tenant — looking for a room</option>
+                            <option value="landlord">Landlord — listing properties</option>
+                        </select>
+                    </div>
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
+                    <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+                        {loading ? "Creating account..." : "Create Account"}
+                    </button>
+                </form>
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                />
-
-                <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                >
-                    <option value="tenant">
-                        Tenant
-                    </option>
-
-                    <option value="landlord">
-                        Landlord
-                    </option>
-                </select>
-
-                <button type="submit">
-                    {loading
-                        ? "Creating..."
-                        : "Register"}
-                </button>
-
-            </form>
-
+                <p className="auth-footer">
+                    Already have an account? <Link to="/login">Sign in</Link>
+                </p>
+            </div>
         </div>
     );
 };

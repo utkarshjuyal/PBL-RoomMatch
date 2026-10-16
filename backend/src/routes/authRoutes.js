@@ -18,6 +18,7 @@ const router = express.Router();
 router.post("/register", register);
 
 router.post("/login", login);
+router.post("/logout", protect, (_req, res) => res.json({ message: "Logged out. Remove the token on the client." }));
 
 
 // ==============================

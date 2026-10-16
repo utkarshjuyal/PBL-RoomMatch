@@ -1,0 +1,10 @@
+const express = require("express");
+const protect = require("../middleware/authMiddleware");
+const authorize = require("../middleware/roleMiddleware");
+const c = require("../controllers/SavedPropertyController");
+const router = express.Router();
+router.use(protect, authorize("tenant"));
+router.get("/", c.getSaved);
+router.post("/", c.saveProperty);
+router.delete("/:propertyId", c.removeSaved);
+module.exports = router;
