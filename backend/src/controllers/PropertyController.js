@@ -36,8 +36,16 @@ exports.getMyProperties = async (req, res) => {
 exports.getProperties = async (req, res) => {
   try {
     const filter = { status: "ACTIVE" };
-    if (req.query.city) filter.city = new RegExp(String(req.query.city).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-    const properties = await Property.find(filter).sort({ createdAt: -1 }).limit(100);
+    if (req.query.city) { const locationRegex = new RegExp(String(req.query.city).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"); filter.$or = [{ city: locationRegex }, { area: locationRegex }, { address: locationRegex }]; }
+    if (req.query.propertyType && ["PG", "FLAT", "ROOM", "HOSTEL", "OTHER"].includes(String(req.query.propertyType).toUpperCase())) filter.propertyType = String(req.query.propertyType).toUpperCase();
+    if (req.query.maxRent !== undefined && Number.isFinite(Number(req.query.maxRent))) filter.rent = { $lte: Math.max(0, Number(req.query.maxRent)) };
+    if (req.query.minRent !== undefined && Number.isFinite(Number(req.query.minRent))) filter.rent = { ...(filter.rent || {}), $gte: Math.max(0, Number(req.query.minRent)) };
+    let properties = await Property.find(filter).sort({ createdAt: -1 }).limit(250).lean();
+    const lat = Number(req.query.latitude), lng = Number(req.query.longitude), radius = Math.min(100, Math.max(1, Number(req.query.radiusKm) || 15));
+    if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      const distanceKm = (p) => { if (!Number.isFinite(p.latitude) || !Number.isFinite(p.longitude)) return Infinity; const rad = n => n * Math.PI / 180; const dLat = rad(p.latitude-lat), dLng = rad(p.longitude-lng); const a = Math.sin(dLat/2)**2 + Math.cos(rad(lat))*Math.cos(rad(p.latitude))*Math.sin(dLng/2)**2; return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); };
+      properties = properties.map(p => ({ ...p, distanceKm: Math.round(distanceKm(p)*10)/10 })).filter(p => p.distanceKm <= radius).sort((a,b) => a.distanceKm-b.distanceKm);
+    }
     res.json({ properties });
   } catch (e) { return validationError(res, e); }
 };

@@ -14,6 +14,7 @@ const Register = () => {
     });
 
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleChange = (event) => {
@@ -29,8 +30,8 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await api.post("/api/auth/register", formData);
-            navigate("/login");
+            const response = await api.post("/api/auth/register", formData);
+            setSuccess(response.data.message || "Account created. Check your inbox to verify your email.");
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed");
         } finally {
@@ -48,6 +49,7 @@ const Register = () => {
                 </div>
 
                 {error && <p className="alert alert-error">{error}</p>}
+                {success && <div className="alert alert-success"><strong>Almost there</strong><p>{success}</p><p>Open the verification link in your email before signing in.</p><Link to="/login">Go to sign in</Link></div>}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -82,10 +84,10 @@ const Register = () => {
                             id="password"
                             type="password"
                             name="password"
-                            placeholder="Min. 6 characters"
+                            placeholder="At least 8 characters, with a number"
                             value={formData.password}
                             onChange={handleChange}
-                            minLength={6}
+                            minLength={8}
                             required
                         />
                     </div>

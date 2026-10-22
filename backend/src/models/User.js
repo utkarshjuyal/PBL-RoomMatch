@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
             minlength: 6
         },
 
+        emailVerified: { type: Boolean, default: true },
+        emailVerificationTokenHash: { type: String, default: null, select: false },
+        emailVerificationExpires: { type: Date, default: null, select: false },
+
         role: {
             type: String,
             enum: ["tenant", "landlord"],

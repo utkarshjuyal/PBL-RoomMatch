@@ -21,7 +21,8 @@ const Layout = ({ children }) => {
     const isActive = (path) => location.pathname === path;
 
     const tenantLinks = [
-        { to: "/discover", label: "Discover" },
+        { to: "/discover", label: "Swipe" },
+        { to: "/map", label: "Nearby Map" },
         { to: "/saved", label: "Saved" },
         { to: "/liked", label: "Liked" },
         { to: "/profile", label: "Profile" },
@@ -40,8 +41,8 @@ const Layout = ({ children }) => {
         <div className="app-shell">
             <header className="app-header">
                 <Link to="/" className="brand">
-                    <span className="brand-icon">🏠</span>
-                    RoomMatch
+                    <span className="brand-icon">⌂</span>
+                    <span>RoomMatch<small className="brand-subtitle">Find your place</small></span>
                 </Link>
 
                 {user && (
@@ -62,9 +63,9 @@ const Layout = ({ children }) => {
                     <label className="theme-picker" title="Choose appearance">
                         <span aria-hidden="true">◐</span>
                         <select aria-label="Theme" value={theme} onChange={(event) => setTheme(event.target.value)}>
-                            <option value="light">Light</option>
+                            <option value="light">Warm light</option>
                             <option value="dark">Dark</option>
-                            <option value="beige">Soft beige</option>
+                            <option value="beige">Soft earth</option>
                         </select>
                     </label>
                     {user ? (

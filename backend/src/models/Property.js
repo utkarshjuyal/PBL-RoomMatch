@@ -14,8 +14,9 @@ const propertySchema = new mongoose.Schema({
   availableFrom: { type: Date },
   amenities: { type: [String], default: [] },
   images: { type: [String], default: [] },
-  latitude: { type: Number },
-  longitude: { type: Number },
+  latitude: { type: Number, min: -90, max: 90 },
+  longitude: { type: Number, min: -180, max: 180 },
+  demoListing: { type: Boolean, default: false, index: true },
   status: { type: String, enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE", index: true }
 }, { timestamps: true });
 
