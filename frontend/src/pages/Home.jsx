@@ -1,149 +1,140 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import Magnetic from "../components/Magnetic";
 
 const Home = () => {
     const { user } = useAuth();
-    const [budget, setBudget] = useState(10000);
-    const [location, setLocation] = useState("Dehradun");
-    const destination = user?.role === "landlord" ? "/landlord" : "/map";
+    const destination = user?.role === "landlord" ? "/landlord" : "/discover";
 
     return (
-        <div className="landing-page landing-redesign">
-            <section className="hero-section hero-modern">
-                <div className="hero-copy">
-                    <span className="hero-badge">✨ A better way to find your next home</span>
-                    <h1>
-                        Find a place<br />
-                        that feels <em>like yours.</em>
-                    </h1>
-                    <p>
-                        Thoughtful spaces, transparent prices, and places that fit your everyday life.
-                        Find your next room without the endless searching.
-                    </p>
-                    <div className="hero-actions">
-                        <Link to={user ? destination : "/register"} className="btn btn-primary btn-lg">
-                            Explore nearby <span aria-hidden="true">↗</span>
-                        </Link>
-                        <Link to={user ? "/preferences" : "/login"} className="btn btn-secondary btn-lg">
-                            Find my match
-                        </Link>
-                    </div>
-                    <div className="hero-trust">
-                        <span>⌖ Location-led discovery</span>
-                        <span>♡ Personalised matches</span>
-                        <span>₹ Transparent rent</span>
-                    </div>
-                </div>
+        <div className="home-page">
+            <header className="home-nav">
+                <Link to="/" className="home-brand" aria-label="RoomMatch home">
+                    <span className="home-brand-mark" aria-hidden="true">r.</span>
+                    <span>roommatch</span>
+                </Link>
 
-                <div className="hero-visual" aria-label="RoomMatch property preview">
-                    <div className="hero-orbit orbit-one"></div>
-                    <div className="hero-orbit orbit-two"></div>
-                    <article className="hero-property-card hero-property-main">
+                <nav className="home-nav-links" aria-label="Main navigation">
+                    <a href="#how-it-works">How it works</a>
+                    <a href="#why-roommatch">Why RoomMatch</a>
+                </nav>
+
+                <div className="home-nav-actions">
+                    {user ? (
+                        <>
+                            <Link to={destination} className="home-nav-text">Your space</Link>
+                            <Magnetic as={Link} to={destination} className="btn btn-primary home-nav-cta">
+                                Open RoomMatch <span aria-hidden="true">↗</span>
+                            </Magnetic>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="home-nav-text">Sign in</Link>
+                            <Magnetic as={Link} to="/register" className="btn btn-primary home-nav-cta">
+                                Get started <span aria-hidden="true">↗</span>
+                            </Magnetic>
+                        </>
+                    )}
+                </div>
+            </header>
+
+            <main>
+                <section className="home-hero">
+                    <div className="home-hero-copy">
+                        <span className="home-kicker"><span className="kicker-dot" /> A more considered way to find a room</span>
+                        <h1>Find a place<br />that feels <em>like yours.</em></h1>
+                        <p className="home-hero-description">
+                            Less scrolling. Fewer compromises. Discover rooms, PGs and flats that fit your preferences and your everyday life.
+                        </p>
+                        <div className="home-hero-actions">
+                            <Magnetic as={Link} to={user ? destination : "/register"} className="btn btn-primary btn-lg home-primary-cta">
+                                Find your place <span aria-hidden="true">↗</span>
+                            </Magnetic>
+                            <a href="#how-it-works" className="home-secondary-cta">See how it works <span aria-hidden="true">↓</span></a>
+                        </div>
+                        <div className="home-hero-note">
+                            <span className="home-note-rule" />
+                            <span>Made for the way you actually live.</span>
+                        </div>
+                    </div>
+
+                    <div className="home-hero-media">
                         <img
-                            src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=85"
-                            alt="Warm, sunlit modern living space"
+                            src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1800&q=88"
+                            alt="Warm, naturally lit contemporary living room"
+                            fetchPriority="high"
                         />
-                        <div className="hero-property-info">
-                            <span className="eyebrow">A place to settle in</span>
-                            <h3>Room for your next chapter</h3>
-                            <p>Warm spaces · Thoughtful matches</p>
-                        </div>
-                    </article>
-                    <div className="floating-note note-price">
-                        <span>Rent that fits</span>
-                        <strong>₹{budget.toLocaleString("en-IN")}/mo</strong>
-                    </div>
-                    <div className="floating-note note-map">
-                        <span className="note-pin">⌖</span>
-                        <div>
-                            <strong>Nearby, made simple</strong>
-                            <small>Explore places in {location || "your city"}</small>
+                        <div className="hero-image-caption">
+                            <span>Find your kind of space</span>
+                            <span className="hero-caption-mark" aria-hidden="true">↗</span>
                         </div>
                     </div>
-                </div>
-            </section>
+                    <div className="home-hero-index" aria-hidden="true">01 / 03</div>
+                </section>
 
-            <section className="quick-search panel-surface">
-                <div className="quick-search-intro">
-                    <span className="eyebrow">Start with what matters</span>
-                    <h2>Your place, your priorities.</h2>
-                </div>
-                <label className="search-field">
-                    <span>Preferred area</span>
-                    <input
-                        type="text"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="City or locality"
-                    />
-                </label>
-                <label className="search-field">
-                    <div className="budget-label-row">
-                        <span>Monthly budget</span>
-                        <strong>₹{budget.toLocaleString("en-IN")}</strong>
+                <section className="home-how" id="how-it-works">
+                    <div className="home-section-intro">
+                        <span className="home-kicker">A simpler search</span>
+                        <h2>From searching to<br /><em>settling in.</em></h2>
                     </div>
-                    <input
-                        type="range"
-                        min="3000"
-                        max="30000"
-                        step="500"
-                        value={budget}
-                        onChange={(e) => setBudget(Number(e.target.value))}
-                    />
-                </label>
-                <Link
-                    className="btn btn-primary btn-search-submit"
-                    to={user ? `/map?city=${encodeURIComponent(location)}&maxRent=${budget}` : "/register"}
-                >
-                    See matches <span aria-hidden="true">→</span>
-                </Link>
-            </section>
+                    <div className="home-steps">
+                        <article className="home-step">
+                            <span className="step-number">01</span>
+                            <div>
+                                <h3>Tell us what matters</h3>
+                                <p>Set your budget, preferred area, room type and the details that make a place feel right.</p>
+                            </div>
+                        </article>
+                        <article className="home-step">
+                            <span className="step-number">02</span>
+                            <div>
+                                <h3>Meet your matches</h3>
+                                <p>Explore accommodation recommendations shaped around your preferences.</p>
+                            </div>
+                        </article>
+                        <article className="home-step">
+                            <span className="step-number">03</span>
+                            <div>
+                                <h3>Keep the good ones</h3>
+                                <p>Like and save places worth a closer look, then revisit them whenever you need.</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
 
-            <section className="home-section">
-                <div className="section-heading">
+                <section className="home-editorial" id="why-roommatch">
+                    <div className="editorial-image">
+                        <img
+                            src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85"
+                            alt="Bright, calm apartment interior with a comfortable seating area"
+                            loading="lazy"
+                        />
+                    </div>
+                    <div className="editorial-copy">
+                        <span className="home-kicker">Room hunting, with more clarity</span>
+                        <h2>A better fit is about more than four walls.</h2>
+                        <p>
+                            The right place should work for your budget, your routine and the way you want to live. RoomMatch brings those details together so you can spend less time searching and more time choosing.
+                        </p>
+                        <Link to={user ? destination : "/register"} className="home-inline-link">Explore RoomMatch <span aria-hidden="true">↗</span></Link>
+                    </div>
+                </section>
+
+                <section className="home-final-cta">
                     <div>
-                        <span className="eyebrow">Made for real life</span>
-                        <h2>Finding a room, without the noise.</h2>
+                        <span className="home-kicker">Your next chapter starts here</span>
+                        <h2>Make room for<br /><em>something better.</em></h2>
                     </div>
-                    <Link to={user ? "/map" : "/register"} className="text-link">
-                        Explore RoomMatch ↗
-                    </Link>
-                </div>
-                <div className="features-section">
-                    <article className="feature-card">
-                        <span className="feature-icon">⌖</span>
-                        <h3>See what's nearby</h3>
-                        <p>Explore accommodation on a map, choose an area, and compare places at a glance.</p>
-                    </article>
-                    <article className="feature-card">
-                        <span className="feature-icon">✳</span>
-                        <h3>Matches with meaning</h3>
-                        <p>Recommendations consider your budget, preferred room type, location, and amenities.</p>
-                    </article>
-                    <article className="feature-card">
-                        <span className="feature-icon">♥</span>
-                        <h3>Choose at your pace</h3>
-                        <p>Swipe, like, save, and revisit the places you want to consider more closely.</p>
-                    </article>
-                </div>
-            </section>
+                    <Magnetic as={Link} to={user ? destination : "/register"} className="btn btn-light btn-lg">
+                        Start exploring <span aria-hidden="true">↗</span>
+                    </Magnetic>
+                </section>
+            </main>
 
-            <section className="home-cta">
-                <div>
-                    <span className="eyebrow">Your next chapter starts here</span>
-                    <h2>A little closer to feeling at home.</h2>
-                    <p>Set your preferences and explore places that make sense for you.</p>
-                </div>
-                <Link to={user ? destination : "/register"} className="btn btn-light">
-                    Get started ↗
-                </Link>
-            </section>
-
-            <footer className="home-footer">
-                <span>⌂ RoomMatch</span>
+            <footer className="home-footer-new">
+                <Link to="/" className="home-brand"><span className="home-brand-mark" aria-hidden="true">r.</span><span>roommatch</span></Link>
                 <span>Find a place that fits your life.</span>
-                <span>Demo listings are labelled clearly.</span>
+                <span>© {new Date().getFullYear()} RoomMatch</span>
             </footer>
         </div>
     );

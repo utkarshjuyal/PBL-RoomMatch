@@ -19,6 +19,7 @@ const Layout = ({ children }) => {
     };
 
     const isActive = (path) => location.pathname === path;
+    const isStandalonePage = ["/", "/login", "/register"].includes(location.pathname);
 
     const tenantLinks = [
         { to: "/discover", label: "Swipe" },
@@ -39,7 +40,7 @@ const Layout = ({ children }) => {
 
     return (
         <div className="app-shell">
-            <header className="app-header">
+            {!isStandalonePage && <header className="app-header">
                 <Link to="/" className="brand">
                     <span className="brand-icon">⌂</span>
                     <span>RoomMatch<small className="brand-subtitle">Find your place</small></span>
@@ -85,9 +86,9 @@ const Layout = ({ children }) => {
                         </>
                     )}
                 </div>
-            </header>
+            </header>}
 
-            <main className="app-main">
+            <main className={`app-main ${isStandalonePage ? "app-main-public" : ""}`}>
                 {children}
             </main>
         </div>
