@@ -6,7 +6,7 @@ const User = require("../src/models/User");
 const LandlordProfile = require("../src/models/LandlordProfile");
 const Property = require("../src/models/Property");
 const TenantProfile = require("../src/models/TenantProfile");
-
+const externalDemoListings = require("./externalDemoListings");
 const demoPassword = "RoomMatchDemo@123";
 // These are explicitly labelled sample listings. Coordinates point to approximate locality centres,
 // not to verified individual rental addresses. No real landlord/contact claims are made.
@@ -58,9 +58,8 @@ async function main() {
     users.push(user);
     await LandlordProfile.findOneAndUpdate({ user: user._id }, { $set: { displayName: landlord.displayName, phone: landlord.phone, city: "Dehradun", bio: landlord.bio } }, { upsert: true, new: true, runValidators: true });
   }
-  for (let i = 0; i < titles.length; i++) {
-    const [title, propertyType, roomType, rent, amenities] = titles[i];
-    const [area, latitude, longitude] = areas[i];
+  for (let i = 0; i < externalDemoListings.length; i++) {
+    const { title, propertyType, roomType, rent, amenities, area, latitude, longitude } = externalDemoListings[i];
     const user = users[i % users.length];
     const doc = {
       landlordId: user._id, title: `${title} · Demo`, description: `Demonstration listing near ${area}, Dehradun. This is sample data with an approximate locality location; rent and availability are not verified.`,
