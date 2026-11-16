@@ -134,7 +134,7 @@ module.exports = [
   {
     title: "Two Rooms near Graphic Era · Clement Town · OLX",
     propertyType: "FLAT", roomType: "DOUBLE", rent: 14000, area: "Clement Town",
-    latitude: 30.2638, longitude: 78.0034, securityDeposit: 0,
+    latitude: 30.2638, longitude: 78.0034, securityDeposit: 14000,
     amenities: ["Bachelors Allowed"],
     description: "Public OLX advertisement for a two-room arrangement and a separate single room near Graphic Era in Clement Town. The listing headline shows ₹14,000 for a 2BHK/one-bathroom property. Area and room configuration should be confirmed on the original OLX page.",
     sourcePlatform: "OLX",
@@ -142,8 +142,8 @@ module.exports = [
   },
   {
     title: "Dhruv Residency and Homestay · Airbnb",
-    propertyType: "FLAT", roomType: "SINGLE", rent: 0, area: "Clement Town",
-    latitude: 30.2638, longitude: 78.0034, securityDeposit: 0,
+    propertyType: "FLAT", roomType: "SINGLE", rent: 7000, area: "Clement Town",
+    latitude: 30.2638, longitude: 78.0034, securityDeposit: 5000,
     pricingPeriod: "SHORT_STAY",
     amenities: ["Kitchen", "WiFi", "Dedicated Workspace", "Parking", "Mountain View"],
     description: "Airbnb short-stay reference in Clement Town. The host listing describes a one-bedroom unit for up to three guests, with kitchen, Wi-Fi, workspace and parking; it states about 100 m to Graphic Era University and 150 m to Graphic Era Hill University. Airbnb pricing depends on chosen dates, so no monthly rent is claimed. Illustrative demo photo; view Airbnb for current pricing and availability.",
@@ -152,8 +152,8 @@ module.exports = [
   },
   {
     title: "Deodar Dreams 6.0 · Airbnb · near Graphic Era",
-    propertyType: "ROOM", roomType: "SINGLE", rent: 0, area: "Clement Town / ISBT",
-    latitude: 30.2745, longitude: 78.0065, securityDeposit: 0,
+    propertyType: "ROOM", roomType: "SINGLE", rent: 6660, area: "Clement Town / ISBT",
+    latitude: 30.2745, longitude: 78.0065, securityDeposit: 660,
     pricingPeriod: "SHORT_STAY",
     amenities: ["Private Attached Bathroom", "WiFi", "Dedicated Workspace", "Parking", "Private Room"],
     description: "Airbnb short-stay room reference advertised near Graphic Era and ISBT. The public page describes a private room with attached bathroom, Wi-Fi, workspace and parking, and shows guest reviews. Exact location is not public before booking and price depends on dates; no monthly rate is claimed. Illustrative demo photo; verify directly on Airbnb.",
