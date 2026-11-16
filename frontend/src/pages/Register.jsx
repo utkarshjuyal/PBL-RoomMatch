@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
 import Magnetic from "../components/Magnetic";
 
 const Register = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({ name: "", email: "", password: "", role: "tenant" });
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleChange = (event) => {
@@ -20,7 +20,7 @@ const Register = () => {
         setLoading(true);
         try {
             const response = await api.post("/api/auth/register", formData);
-            setSuccess(response.data.message || "Account created. Check your inbox to verify your email.");
+            navigate("/verify-email", { state: { email: response.data.email } });
         } catch (err) {
             setError(err.response?.data?.message || "Registration failed");
         } finally {
@@ -49,14 +49,6 @@ const Register = () => {
                 </div>
 
                 {error && <p className="alert alert-error">{error}</p>}
-                {success && (
-                    <div className="alert alert-success">
-                        <strong>Almost there</strong>
-                        <p>{success}</p>
-                        <p>Open the verification link in your email before signing in.</p>
-                        <Link to="/login">Go to sign in</Link>
-                    </div>
-                )}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="form-group">

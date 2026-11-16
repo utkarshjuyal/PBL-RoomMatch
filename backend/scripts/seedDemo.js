@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("../src/config/config"); // loads .env and throws if a required variable is missing
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const connectDB = require("../src/config/db");
@@ -48,7 +48,6 @@ const landlords = [
   { email: "demo.landlord4@roommatch.test", name: "Demo Host Four", displayName: "Warm Nest Samples", phone: "", bio: "Fictional demo profile; not a real landlord." }
 ];
 async function main() {
-  if (!process.env.MONGODB_URI) throw new Error("MONGODB_URI is missing from backend/.env");
   await connectDB();
   const passwordHash = await bcrypt.hash(demoPassword, 12);
   let inserted = 0, updated = 0;

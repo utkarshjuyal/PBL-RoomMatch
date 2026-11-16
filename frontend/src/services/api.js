@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL: "", // same origin: the backend serves this app
   timeout: 15000,
   headers: { "Content-Type": "application/json" }
 });

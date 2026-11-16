@@ -2076,3 +2076,8 @@ button, input, select, textarea { font: inherit; }
 .legend-dot { background: var(--primary); }
 .map-heart { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); }
 .map-heart:hover { background: var(--accent); color: #fff; }
+
+/* Email OTP */
+.otp-input { text-align: center; font-size: 1.8rem; letter-spacing: 0.4em; font-variant-numeric: tabular-nums; padding-left: 0.4em; }
+.verify-card .auth-form { text-align: left; margin-top: 1rem; }
+.verify-card .resend-button { margin-top: 0.75rem; }

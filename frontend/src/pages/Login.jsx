@@ -13,13 +13,10 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const [notice, setNotice] = useState("");
-    const [resending, setResending] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError("");
-        setNotice("");
         setLoading(true);
 
         try {
@@ -33,22 +30,14 @@ const Login = () => {
                 navigate("/discover");
             }
         } catch (err) {
+            if (err.response?.data?.code === "EMAIL_NOT_VERIFIED") {
+                // Backend has just emailed a fresh code; continue on the OTP screen.
+                navigate("/verify-email", { state: { email: err.response.data.email || email } });
+                return;
+            }
             setError(err.response?.data?.message || "Login failed");
         } finally {
             setLoading(false);
-        }
-    };
-
-    const resendVerification = async () => {
-        setResending(true);
-        setNotice("");
-        try {
-            const response = await api.post("/api/auth/resend-verification", { email });
-            setNotice(response.data.message);
-        } catch (err) {
-            setError(err.response?.data?.message || "Could not resend verification email.");
-        } finally {
-            setResending(false);
         }
     };
 
@@ -73,12 +62,6 @@ const Login = () => {
                 </div>
 
                 {error && <p className="alert alert-error">{error}</p>}
-                {notice && <p className="alert alert-success">{notice}</p>}
-                {error.toLowerCase().includes("verify your email") && (
-                    <button type="button" className="btn btn-secondary btn-full resend-button" disabled={resending || !email} onClick={resendVerification}>
-                        {resending ? "Sending…" : "Resend verification email"}
-                    </button>
-                )}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="form-group">

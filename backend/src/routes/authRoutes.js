@@ -4,7 +4,7 @@ const {
     register,
     login,
     verifyEmail,
-    resendVerification
+    resendCode
 } = require("../controllers/authController");
 
 const protect = require("../middleware/authMiddleware");
@@ -13,6 +13,7 @@ const rateLimit = require("../middleware/rateLimit");
 
 const router = express.Router();
 const authLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 8 });
+const emailKey = (req) => (typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : req.ip);
 
 
 // ==============================
@@ -20,8 +21,8 @@ const authLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 8 });
 // ==============================
 
 router.post("/register", authLimit, register);
-router.post("/verify-email", rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }), verifyEmail);
-router.post("/resend-verification", rateLimit({ windowMs: 15 * 60 * 1000, max: 4 }), resendVerification);
+router.post("/verify-email", rateLimit({ windowMs: 15 * 60 * 1000, max: 10, key: emailKey }), verifyEmail);
+router.post("/resend-code", rateLimit({ windowMs: 60 * 60 * 1000, max: 5, key: emailKey }), resendCode);
 
 router.post("/login", authLimit, login);
 router.post("/logout", protect, (_req, res) => res.json({ message: "Logged out. Remove the token on the client." }));
