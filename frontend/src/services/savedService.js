@@ -10,6 +10,16 @@ export const getSavedProperties = async () => {
     return response.data.saved;
 };
 
+export const getDueSavedReminder = async () => {
+    const response = await api.get("/api/saved/reminders");
+    return response.data;
+};
+
+export const dismissSavedReminder = async (propertyId) => {
+    const response = await api.patch(`/api/saved/${propertyId}/reminder`);
+    return response.data;
+};
+
 export const removeSavedProperty = async (propertyId) => {
     await api.delete(`/api/saved/${propertyId}`);
 };

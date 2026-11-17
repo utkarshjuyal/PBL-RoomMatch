@@ -1,7 +1,9 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
 const authorize = require("../middleware/roleMiddleware");
-const { getRecommendations } = require("../controllers/RecommendationController");
+const { getRecommendations, getSimilarProperties } = require("../controllers/RecommendationController");
 const router = express.Router();
-router.get("/", protect, authorize("tenant"), getRecommendations);
+router.use(protect, authorize("tenant"));
+router.get("/:propertyId/similar", getSimilarProperties);
+router.get("/", getRecommendations);
 module.exports = router;

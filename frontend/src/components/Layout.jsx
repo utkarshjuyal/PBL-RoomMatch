@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import SavedReminderCenter from "./SavedReminderCenter";
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -12,6 +13,16 @@ const Layout = ({ children }) => {
         document.documentElement.dataset.theme = theme;
         localStorage.setItem("roommatch_theme", theme);
     }, [theme]);
+
+    useEffect(() => {
+        if (location.pathname.startsWith("/property/")) return;
+        const key = `roommatch-scroll:${location.pathname}`;
+        const savedY = sessionStorage.getItem(key);
+        if (savedY !== null) {
+            sessionStorage.removeItem(key);
+            window.requestAnimationFrame(() => window.scrollTo({ top: Number(savedY) || 0, behavior: "auto" }));
+        }
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -91,6 +102,7 @@ const Layout = ({ children }) => {
             <main className={`app-main ${isStandalonePage ? "app-main-public" : ""}`}>
                 {children}
             </main>
+            <SavedReminderCenter user={user} />
         </div>
     );
 };

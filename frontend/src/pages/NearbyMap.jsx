@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import { saveProperty } from "../services/savedService";
 import { getProfile } from "../services/profileService";
+import { getRecommendations } from "../services/propertyService";
 
 const money = value => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value || 0);
 const DEFAULT_CENTER = [30.3165, 78.0322];
@@ -79,7 +80,21 @@ export default function NearbyMap() {
 
   const visibleProperties = useMemo(() => { const items = properties.filter(p => Number(p.rent) <= maxRent && (kind === "ALL" || p.propertyType === kind)); return items.sort((a,b) => sortBy === "rent-low" ? a.rent-b.rent : sortBy === "rent-high" ? b.rent-a.rent : sortBy === "newest" ? new Date(b.createdAt)-new Date(a.createdAt) : sortBy === "recommended" && (a.recommendationScore != null || b.recommendationScore != null) ? (b.recommendationScore || 0)-(a.recommendationScore || 0) : (a.distanceKm ?? 99999)-(b.distanceKm ?? 99999)); }, [properties, maxRent, kind, sortBy]);
   const onSearch = e => { e.preventDefault(); setSearchCoords(null); loadProperties(null); };
-  const applyPreferences = async () => { try { const data = await getProfile(); const profile = data.profile || data.tenantProfile || data; const preferredLocation = profile.preferredArea || profile.preferredCity || profile.preferredLocation || "Dehradun"; const preferredBudget = Number(profile.budgetMax || 30000); const preferredType = profile.accommodationType || "ALL"; setCity(preferredLocation); setMaxRent(preferredBudget); setKind(preferredType); setSearchCoords(null); const params = { city: preferredLocation, minRent: profile.budgetMin || undefined, maxRent: preferredBudget, propertyType: preferredType !== "ALL" ? preferredType : undefined }; const response = await api.get("/api/properties", { params }); const score = p => { let n = 0; const city = profile.preferredCity || profile.preferredLocation; if (city && p.city?.toLowerCase() === city.toLowerCase()) n += 30; if (profile.preferredArea && p.area?.toLowerCase() === profile.preferredArea.toLowerCase()) n += 10; if (profile.budgetMin != null && profile.budgetMax != null && p.rent >= profile.budgetMin && p.rent <= profile.budgetMax) n += 25; else if (profile.budgetMax != null && p.rent <= profile.budgetMax) n += 15; if (profile.preferredRoomType && p.roomType === profile.preferredRoomType) n += 15; if (profile.accommodationType && p.propertyType === profile.accommodationType) n += 10; const amenities = profile.preferredAmenities || []; if (amenities.length) n += Math.round(10 * amenities.filter(a => (p.amenities || []).some(x => x.toLowerCase() === a.toLowerCase())).length / amenities.length); return n; }; setProperties((response.data.properties || []).map(p => ({ ...p, recommendationScore: score(p) })).sort((a,b) => b.recommendationScore-a.recommendationScore)); setSortBy("recommended"); setLocationMessage("Your saved tenant preferences have been applied. Listings are filtered and ranked using your budget, location, room type, accommodation type, and amenities."); } catch (e) { setError(e.response?.data?.message || "Could not load your saved preferences. Update your tenant profile first."); } };
+  const applyPreferences = async () => {
+    try {
+      const [profileData, recommendations] = await Promise.all([getProfile(), getRecommendations()]);
+      const profile = profileData.profile || profileData.tenantProfile || profileData;
+      const preferredLocation = profile.preferredArea || profile.preferredCity || profile.preferredLocation || "Dehradun";
+      setCity(preferredLocation);
+      setSearchCoords(null);
+      setCenter(DEFAULT_CENTER);
+      setProperties(recommendations);
+      setSortBy("recommended");
+      setLocationMessage("Your preferences and eligible like history were applied using the same recommendation ranking as Discover. The map still marks approximate locations as approximate.");
+    } catch (e) {
+      setError(e.response?.data?.message || "Could not load your recommendations. Update your tenant profile first.");
+    }
+  };
   const save = async p => { try { await saveProperty(p._id); setLocationMessage(`Saved “${p.title}” to your saved properties.`); } catch (e) { setLocationMessage(e.response?.data?.message || "Could not save this property."); } };
 
   return <div className="nearby-page">

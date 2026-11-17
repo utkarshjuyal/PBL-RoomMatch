@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { createProperty, getProperty, updateProperty, uploadPropertyImages } from "../services/propertyService";
 
-const amenitiesList = ["WiFi", "AC", "Parking", "Food", "Laundry", "Power Backup", "Gym"];
+const amenitiesList = ["WiFi", "AC", "Parking", "Food", "Laundry", "Power Backup", "Gym", "Study Desk", "Wardrobe", "Common Kitchen", "CCTV", "Attached Bathroom"];
 
 const emptyForm = {
     title: "",
@@ -15,6 +15,14 @@ const emptyForm = {
     address: "",
     rent: "",
     securityDeposit: "",
+    sharingArrangement: "",
+    furnishing: "FURNISHED",
+    genderPreference: "ANY",
+    occupancy: "",
+    availableFrom: "",
+    locationPrecision: "UNVERIFIED",
+    latitude: "",
+    longitude: "",
     amenities: [],
     images: [""]
 };
@@ -46,7 +54,15 @@ const LandlordForm = () => {
                     area: property.area || "",
                     address: property.address || "",
                     rent: property.rent || "",
-                    securityDeposit: property.securityDeposit || "",
+                    securityDeposit: property.securityDeposit ?? "",
+                    sharingArrangement: property.sharingArrangement || "",
+                    furnishing: property.furnishing || "",
+                    genderPreference: property.genderPreference || "ANY",
+                    occupancy: property.occupancy ?? "",
+                    availableFrom: property.availableFrom ? new Date(property.availableFrom).toISOString().slice(0, 10) : "",
+                    locationPrecision: property.locationPrecision || "UNVERIFIED",
+                    latitude: property.latitude ?? "",
+                    longitude: property.longitude ?? "",
                     amenities: property.amenities || [],
                     images: property.images?.length ? property.images : [""]
                 });
@@ -85,6 +101,10 @@ const LandlordForm = () => {
                 ...form,
                 rent: Number(form.rent),
                 securityDeposit: Number(form.securityDeposit) || 0,
+                occupancy: form.occupancy === "" ? undefined : Number(form.occupancy),
+                latitude: form.latitude === "" ? undefined : Number(form.latitude),
+                longitude: form.longitude === "" ? undefined : Number(form.longitude),
+                availableFrom: form.availableFrom || undefined,
                 images: [...form.images.filter(Boolean), ...uploadedImages].slice(0, 8)
             };
 
@@ -159,6 +179,59 @@ const LandlordForm = () => {
                     <div className="form-group full">
                         <label htmlFor="address">Address</label>
                         <input id="address" name="address" value={form.address} onChange={handleChange} placeholder="Full address" />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="sharingArrangement">Sharing arrangement</label>
+                        <input id="sharingArrangement" name="sharingArrangement" value={form.sharingArrangement} onChange={handleChange} placeholder="e.g. Double sharing" />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="furnishing">Furnishing</label>
+                        <select id="furnishing" name="furnishing" value={form.furnishing} onChange={handleChange}>
+                            <option value="">Not specified</option>
+                            <option value="FURNISHED">Furnished</option>
+                            <option value="SEMI_FURNISHED">Semi-furnished</option>
+                            <option value="UNFURNISHED">Unfurnished</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="genderPreference">Gender preference</label>
+                        <select id="genderPreference" name="genderPreference" value={form.genderPreference} onChange={handleChange}>
+                            <option value="ANY">Any</option>
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="occupancy">Maximum occupants</label>
+                        <input id="occupancy" name="occupancy" type="number" min="1" max="50" value={form.occupancy} onChange={handleChange} placeholder="e.g. 2" />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="availableFrom">Available from</label>
+                        <input id="availableFrom" name="availableFrom" type="date" value={form.availableFrom} onChange={handleChange} />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="locationPrecision">Location accuracy</label>
+                        <select id="locationPrecision" name="locationPrecision" value={form.locationPrecision} onChange={handleChange}>
+                            <option value="UNVERIFIED">Not verified</option>
+                            <option value="APPROXIMATE">Approximate locality</option>
+                            <option value="EXACT">Exact address / pin provided</option>
+                        </select>
+                        <p className="field-hint">Only select exact when the address or map pin is the actual property location.</p>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="latitude">Latitude (optional)</label>
+                        <input id="latitude" name="latitude" type="number" min="-90" max="90" step="any" value={form.latitude} onChange={handleChange} placeholder="e.g. 30.3165" />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="longitude">Longitude (optional)</label>
+                        <input id="longitude" name="longitude" type="number" min="-180" max="180" step="any" value={form.longitude} onChange={handleChange} placeholder="e.g. 78.0322" />
+                        <p className="field-hint">Use coordinates for this property only. A locality-centre pin must be marked approximate.</p>
                     </div>
 
                     <div className="form-group">

@@ -13,3 +13,8 @@ export const getInteractions = async (action) => {
     const response = await api.get("/api/interactions", { params });
     return response.data.interactions;
 };
+
+export const removeInteraction = async (propertyId) => {
+    const response = await api.delete(`/api/interactions/${propertyId}`);
+    return response.data;
+};

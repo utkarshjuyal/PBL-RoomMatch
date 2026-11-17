@@ -15,6 +15,7 @@ import LandlordForm from "./pages/LandlordForm";
 import LandlordProfile from "./pages/LandlordProfile";
 import NearbyMap from "./pages/NearbyMap";
 import VerifyEmail from "./pages/VerifyEmail";
+import PropertyDetail from "./pages/PropertyDetail";
 import { useAuth } from "./context/AuthContext";
 
 const RoleRoute = ({ role, children }) => {
@@ -36,6 +37,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/property/:propertyId" element={<ProtectedRoute><RoleRoute role="tenant"><PropertyDetail /></RoleRoute></ProtectedRoute>} />
                     <Route path="/map" element={<ProtectedRoute><RoleRoute role="tenant"><NearbyMap /></RoleRoute></ProtectedRoute>} />
 
                     <Route path="/discover" element={

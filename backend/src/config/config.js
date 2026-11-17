@@ -41,6 +41,8 @@ const SMTP_PORT = port("SMTP_PORT", required("SMTP_PORT"));
 const SMTP_USER = required("SMTP_USER");
 const SMTP_PASS = required("SMTP_PASS");
 
+const SAVED_REMINDER_MINUTES = Math.max(1, Math.min(1440, Number(optional("SAVED_REMINDER_MINUTES", "5")) || 5));
+
 const MAIL_FROM = required("MAIL_FROM");
 if (!MAIL_FROM.includes("@")) {
   throw new Error('MAIL_FROM must include a sender email, for example "RoomMatch <you@example.com>"');
@@ -57,4 +59,9 @@ module.exports = Object.freeze({
   SMTP_USER,
   SMTP_PASS,
   MAIL_FROM,
+  SAVED_REMINDER_MINUTES,
+  DEMO_TENANT_EMAIL: optional("DEMO_TENANT_EMAIL", ""),
+  DEMO_LANDLORD1_EMAIL: optional("DEMO_LANDLORD1_EMAIL", ""),
+  DEMO_LANDLORD2_EMAIL: optional("DEMO_LANDLORD2_EMAIL", ""),
+  DEMO_LANDLORD3_EMAIL: optional("DEMO_LANDLORD3_EMAIL", ""),
 });

@@ -1,35 +1,58 @@
+const mongoose = require("mongoose");
 const TenantProfile = require("../models/TenantProfile");
 const Property = require("../models/Property");
 const Interaction = require("../models/Interaction");
 const SavedProperty = require("../models/SavedProperty");
+const { rankRecommendations, rankSimilarProperties, filterRecommendationCandidates, USER_MATCH_WEIGHTS, PROPERTY_SIMILARITY_WEIGHTS } = require("../services/recommendationEngine");
 
 exports.getRecommendations = async (req, res) => {
   try {
-    const [profile, processed, saved] = await Promise.all([
-      TenantProfile.findOne({ user: req.user.userId }).lean(),
-      Interaction.find({ user: req.user.userId }).distinct("property"),
-      SavedProperty.find({ user: req.user.userId }).distinct("property")
+    const userId = req.user.userId;
+    const [profile, interactions, savedIds, properties] = await Promise.all([
+      TenantProfile.findOne({ user: userId }).lean(),
+      Interaction.find({ user: userId }).select("property action createdAt").lean(),
+      SavedProperty.find({ user: userId }).distinct("property"),
+      Property.find({ status: "ACTIVE" }).sort({ createdAt: -1 }).limit(250).lean(),
     ]);
-    const exclude = [...processed, ...saved];
-    const properties = await Property.find({ status: "ACTIVE", _id: { $nin: exclude } }).lean();
-    const score = (p) => {
-      if (!profile) return 0;
-      let total = 0;
-      const city = profile.preferredCity || profile.preferredLocation;
-      if (city && p.city && city.trim().toLowerCase() === p.city.trim().toLowerCase()) total += 30;
-      if (profile.preferredArea && p.area && profile.preferredArea.trim().toLowerCase() === p.area.trim().toLowerCase()) total += 10;
-      if (profile.budgetMin != null && profile.budgetMax != null && p.rent >= profile.budgetMin && p.rent <= profile.budgetMax) total += 25;
-      else if (profile.budgetMax != null && p.rent <= profile.budgetMax) total += 15;
-      if (profile.preferredRoomType && p.roomType === profile.preferredRoomType) total += 15;
-      if (profile.accommodationType && p.propertyType === profile.accommodationType) total += 10;
-      const preferred = profile.preferredAmenities || [];
-      if (preferred.length) total += Math.round(10 * preferred.filter(a => (p.amenities || []).some(x => x.toLowerCase() === a.toLowerCase())).length / preferred.length);
-      return total;
-    };
-    properties.sort((a, b) => score(b) - score(a) || new Date(b.createdAt) - new Date(a.createdAt));
-    res.json({ recommendations: properties.map(p => ({ ...p, recommendationScore: score(p) })) });
+    const candidates = filterRecommendationCandidates(properties, interactions, savedIds, profile || {});
+    const likedIds = interactions.filter((item) => item.action === "LIKE").map((item) => item.property);
+    const likedProperties = likedIds.length
+      ? await Property.find({ _id: { $in: likedIds }, status: "ACTIVE" }).lean()
+      : [];
+    const likedById = new Map(likedProperties.map((property) => [String(property._id), property]));
+    const likes = interactions
+      .filter((item) => item.action === "LIKE")
+      .map((item) => ({ property: likedById.get(String(item.property)), createdAt: item.createdAt }))
+      .filter((item) => item.property)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const recommendations = rankRecommendations(candidates, profile || {}, likes);
+    res.json({
+      recommendations,
+      scoring: {
+        userMatchWeights: USER_MATCH_WEIGHTS,
+        propertySimilarityWeights: PROPERTY_SIMILARITY_WEIGHTS,
+        likedPropertyCount: likes.length,
+        note: "Match score measures stated preferences. Similarity score compares the listing with active properties the tenant has liked. Ranking weights are returned per property.",
+      },
+    });
   } catch (error) {
     console.error("Recommendation error:", error.message);
     res.status(500).json({ message: "Unable to generate recommendations" });
+  }
+};
+
+exports.getSimilarProperties = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    if (!mongoose.isValidObjectId(propertyId)) return res.status(400).json({ message: "Invalid property ID" });
+    const source = await Property.findOne({ _id: propertyId, status: "ACTIVE" }).lean();
+    if (!source) return res.status(404).json({ message: "Property not found" });
+    const candidates = await Property.find({ status: "ACTIVE", _id: { $ne: propertyId } }).sort({ createdAt: -1 }).limit(250).lean();
+    const similar = rankSimilarProperties(source, candidates).slice(0, 8);
+    res.json({ sourcePropertyId: propertyId, similar });
+  } catch (error) {
+    console.error("Similar property error:", error.message);
+    res.status(500).json({ message: "Unable to find similar properties" });
   }
 };

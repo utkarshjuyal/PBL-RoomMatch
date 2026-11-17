@@ -8,7 +8,7 @@ exports.recordInteraction = async (req, res) => {
     if (!["LIKE", "DISLIKE"].includes(action)) return res.status(400).json({ message: "Action must be LIKE or DISLIKE" });
     const property = await Property.findOne({ _id: propertyId, status: "ACTIVE" });
     if (!property) return res.status(404).json({ message: "Active property not found" });
-    const interaction = await Interaction.findOneAndUpdate({ user: req.user.userId, property: propertyId }, { $set: { action } }, { new: true, upsert: true, runValidators: true });
+    const interaction = await Interaction.findOneAndUpdate({ user: req.user.userId, property: propertyId }, { $set: { action, createdAt: new Date() } }, { new: true, upsert: true, runValidators: true });
     res.json({ message: "Interaction saved", interaction });
   } catch (error) {
     console.error("Interaction error:", error.message);
@@ -22,4 +22,12 @@ exports.getInteractions = async (req, res) => {
     const interactions = await Interaction.find(filter).sort({ createdAt: -1 }).populate({ path: "property", match: { status: "ACTIVE" } });
     res.json({ interactions: interactions.filter(x => x.property) });
   } catch (error) { res.status(500).json({ message: "Unable to load interactions" }); }
+};
+
+exports.removeInteraction = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.propertyId)) return res.status(400).json({ message: "Invalid property ID" });
+    await Interaction.deleteOne({ user: req.user.userId, property: req.params.propertyId });
+    res.json({ message: "Interaction removed" });
+  } catch (error) { res.status(500).json({ message: "Unable to remove interaction" }); }
 };

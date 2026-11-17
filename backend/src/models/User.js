@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 254 },
     password: { type: String, required: true, minlength: 6 },
     role: { type: String, enum: ["tenant", "landlord"], required: true },
+    // True only for the dedicated, fictional accounts created by seedDemo.js.
+    demoAccount: { type: Boolean, default: false, index: true, select: false },
 
     // New accounts start unverified. Verified by entering the emailed 6-digit code.
     emailVerified: { type: Boolean, default: false },

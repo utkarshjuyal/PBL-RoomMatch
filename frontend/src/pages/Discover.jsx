@@ -23,7 +23,10 @@ const Discover = () => {
         try {
             const data = await getRecommendations();
             setProperties(data);
-            setCurrentIndex(0);
+            const savedId = sessionStorage.getItem("roommatch-discover-current");
+            const savedIndex = savedId ? data.findIndex((item) => String(item._id) === savedId) : -1;
+            setCurrentIndex(savedIndex >= 0 ? savedIndex : 0);
+            if (savedIndex < 0) sessionStorage.removeItem("roommatch-discover-current");
             setSavedCurrent(false);
         } catch (err) {
             setError(err.response?.data?.message || "Failed to load properties");
@@ -38,6 +41,12 @@ const Discover = () => {
 
     const currentProperty = properties[currentIndex];
     const actionHandlerRef = useRef(null);
+
+    useEffect(() => {
+        if (loading) return;
+        if (currentProperty?._id) sessionStorage.setItem("roommatch-discover-current", String(currentProperty._id));
+        else sessionStorage.removeItem("roommatch-discover-current");
+    }, [loading, currentProperty?._id]);
 
     const advance = () => {
         setSwipeDirection("");
@@ -181,6 +190,17 @@ const Discover = () => {
                     <PropertyCard property={currentProperty} />
                 </div>
             </div>
+
+            {(currentProperty.matchBreakdown?.length > 0 || currentProperty.similarityReasons?.length > 0) && (
+                <div className="discovery-match-notes" aria-live="polite">
+                    {currentProperty.matchBreakdown?.some((item) => item.earned > 0) && (
+                        <p><strong>Preference fit</strong><span>{currentProperty.matchBreakdown.filter((item) => item.earned > 0).map((item) => item.label).slice(0, 4).join(" · ")}</span></p>
+                    )}
+                    {currentProperty.similarityReasons?.length > 0 && (
+                        <p><strong>Similar to places you liked</strong><span>{currentProperty.similarityReasons.slice(0, 3).join(" · ")}</span></p>
+                    )}
+                </div>
+            )}
 
             <div className="swipe-controls-area">
                 <div className="swipe-actions swipe-actions-new" aria-label="Property actions">

@@ -5,4 +5,5 @@ const c = require("../controllers/InteractionController");
 const router = express.Router();
 router.use(protect, authorize("tenant"));
 router.route("/").get(c.getInteractions).post(c.recordInteraction);
+router.delete("/:propertyId", c.removeInteraction);
 module.exports = router;

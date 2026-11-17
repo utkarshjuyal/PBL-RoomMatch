@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
 const Property = require("../models/Property");
+const LandlordProfile = require("../models/LandlordProfile");
 
-const fields = ["title", "description", "propertyType", "roomType", "city", "area", "address", "rent", "securityDeposit", "availableFrom", "amenities", "images", "latitude", "longitude", "status"];
+const fields = ["title", "description", "propertyType", "roomType", "city", "area", "address", "rent", "securityDeposit", "availableFrom", "amenities", "images", "latitude", "longitude", "status", "sharingArrangement", "furnishing", "genderPreference", "occupancy", "locationPrecision"];
 const pick = (body, isCreate = false) => {
   const out = {};
   for (const key of fields) if (body[key] !== undefined) out[key] = body[key];
   if (out.title !== undefined) out.title = String(out.title).trim();
   if (out.city !== undefined) out.city = String(out.city).trim();
-  for (const key of ["rent", "securityDeposit", "latitude", "longitude"]) if (out[key] !== undefined && out[key] !== "") out[key] = Number(out[key]);
-  for (const key of ["rent", "securityDeposit", "latitude", "longitude"]) if (out[key] === "") delete out[key];
+  for (const key of ["rent", "securityDeposit", "latitude", "longitude", "occupancy"]) if (out[key] !== undefined && out[key] !== "") out[key] = Number(out[key]);
+  for (const key of ["rent", "securityDeposit", "latitude", "longitude", "occupancy"]) if (out[key] === "") delete out[key];
   if (out.amenities && !Array.isArray(out.amenities)) out.amenities = [];
   if (out.images && !Array.isArray(out.images)) out.images = [];
   if (out.images) out.images = out.images.filter((v) => typeof v === "string" && v.trim()).slice(0, 10);
@@ -52,9 +53,10 @@ exports.getProperties = async (req, res) => {
 exports.getProperty = async (req, res) => {
   if (badId(req.params.id)) return res.status(400).json({ message: "Invalid property ID" });
   try {
-    const property = await Property.findOne({ _id: req.params.id, $or: [{ status: "ACTIVE" }, { landlordId: req.user.userId }] });
+    const property = await Property.findOne({ _id: req.params.id, $or: [{ status: "ACTIVE" }, { landlordId: req.user.userId }] }).populate({ path: "landlordId", select: "name role" });
     if (!property) return res.status(404).json({ message: "Property not found" });
-    res.json({ property });
+    const landlord = property.landlordId?._id ? await LandlordProfile.findOne({ user: property.landlordId._id }).select("displayName phone city bio").lean() : null;
+    res.json({ property: { ...property.toObject(), landlord: landlord || null } });
   } catch (e) { return validationError(res, e); }
 };
 exports.updateProperty = async (req, res) => {

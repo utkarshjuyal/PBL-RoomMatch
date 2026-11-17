@@ -6,9 +6,14 @@ const propertySchema = new mongoose.Schema({
   description: { type: String, trim: true, maxlength: 2000, default: "" },
   propertyType: { type: String, enum: ["PG", "FLAT", "ROOM", "HOSTEL", "OTHER"], required: true },
   roomType: { type: String, enum: ["SINGLE", "DOUBLE", "TRIPLE", "OTHER"], required: true },
+  sharingArrangement: { type: String, trim: true, maxlength: 50, default: "" },
+  furnishing: { type: String, enum: ["FURNISHED", "SEMI_FURNISHED", "UNFURNISHED", ""], default: "" },
+  genderPreference: { type: String, enum: ["MALE", "FEMALE", "ANY", ""], default: "" },
+  occupancy: { type: Number, min: 1, max: 50 },
   city: { type: String, required: true, trim: true },
   area: { type: String, trim: true, default: "" },
   address: { type: String, trim: true, default: "" },
+  locationPrecision: { type: String, enum: ["EXACT", "APPROXIMATE", "UNVERIFIED"], default: "UNVERIFIED" },
   rent: { type: Number, required: true, min: 0 },
   securityDeposit: { type: Number, min: 0, default: 0 },
   availableFrom: { type: Date },
@@ -17,7 +22,10 @@ const propertySchema = new mongoose.Schema({
   latitude: { type: Number, min: -90, max: 90 },
   longitude: { type: Number, min: -180, max: 180 },
   demoListing: { type: Boolean, default: false, index: true },
+  demoImageNote: { type: String, trim: true, default: "" },
   status: { type: String, enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE", index: true }
 }, { timestamps: true });
+
+propertySchema.index({ status: 1, city: 1, area: 1, rent: 1 });
 
 module.exports = mongoose.models.Property || mongoose.model("Property", propertySchema);

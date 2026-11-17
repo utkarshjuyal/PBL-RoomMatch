@@ -38,3 +38,8 @@ export const uploadPropertyImages = async (files) => {
     });
     return response.data.images;
 };
+
+export const getSimilarProperties = async (propertyId) => {
+    const response = await api.get(`/api/recommendations/${propertyId}/similar`);
+    return response.data.similar;
+};
